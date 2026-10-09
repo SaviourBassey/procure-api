@@ -1,6 +1,8 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from msflib.eventbus import bind_app_emitter
 from sqlmodel import SQLModel
 
@@ -21,6 +23,19 @@ app = FastAPI(
     description="Procurement platform API for buyers and vendors",
     version="0.1.0",
     lifespan=lifespan,
+)
+
+# Configure CORS
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 bind_app_emitter(app)
