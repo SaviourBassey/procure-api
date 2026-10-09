@@ -1,0 +1,70 @@
+[tool.poetry]
+name = "procure-api"
+version = "0.1.0"
+description = "MSF FastAPI Backend"
+authors = ["Aniebiet Udoh <almaudoh@gmail.com>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.15"
+psycopg2-binary = "^2.9.0"
+alembic = "^1.13"
+msflib = { git = "https://github.com/msflib/fastapi.git", subdirectory = "core", rev = "core-v0.2.1" }
+msflib-auth = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/auth", rev = "auth-v0.2.2" }
+msflib-account = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/account", rev = "account-v0.2.2" }
+msflib-workspaces = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/workspaces", rev = "workspaces-v0.2.1" }
+msflib-ai-core = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/ai_core", rev = "ai_core-v0.2.1", extras = ["openrouter", "huggingface"] }
+msflib-documents = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/documents", rev = "documents-v0.2.0" }
+msflib-ai-api = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/ai_api", rev = "ai_api-v0.2.0" }
+msflib-ingestion = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/ingestion", rev = "ingestion-v0.2.0" }
+msflib-knowledge = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/knowledge", rev = "knowledge-v0.2.0" }
+msflib-tenancy = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/tenancy", rev = "tenancy-v0.2.0" }
+celery = { version = "^5.3", extras = ["redis"] }
+tenacity = "^8.2"
+langchain-google-genai = "^4.2.7"
+email-validator = "^2.3.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.4"
+black = "^23.3"
+isort = "^5.12.0"
+autoflake = "^1.3.1"
+flake8 = "^7.3.0"
+ruff = "^0.16.0"
+pre-commit = "^3.8.0"
+
+[tool.poetry.group.test.dependencies]
+faker = "^19.1.0"
+pytest = "^7.4.0"
+pytest-xdist = "^3.6.1"
+sqlalchemy-stubs = "^0.3"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.1"
+
+[tool.pytest.ini_options]
+# Hash passwords at bcrypt's minimum cost in tests (from msflib). At the default 12 rounds every
+# account a test creates costs ~0.25s, which made up most of the suite's run time.
+addopts = "-p msflib.utils.tests.fast_bcrypt"
+testpaths = ["app/tests"]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+line_length = 88
+
+[build-system]
+requires = ["poetry>=1.2"]
+build-backend = "poetry.masonry.api"
+
+[tool.ruff]
+extend-exclude = ["__pycache__",".pytest_cache"]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["B008", "N999"]
+external = ["E402", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402", "F401", "E501"]
+"alembic/env.py" = ["E402", "F401", "F403"]
