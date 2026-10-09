@@ -15,6 +15,8 @@ from app.api.endpoints.onboarding import onboarding_router
 
 from app.api.endpoints.tenders import tender_router
 
+from app.api.endpoints.applications import application_router
+
 api_router = APIRouter()
 
 
@@ -89,4 +91,9 @@ api_router.include_router(
 api_router.include_router(
     tender_router,
     prefix="/tenders",
+)
+
+api_router.include_router(
+    application_router,
+    prefix="/applications",
 )

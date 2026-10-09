@@ -15,6 +15,13 @@ from app.models.tender import (
     TenderRequiredDocument,
 )
 
+from app.models.application import (
+    TenderApplication,
+    ApplicationItemQuote,
+    ApplicationRequirementResponse,
+    ApplicationDocument,
+)
+
 __all__ = [
     "Account",
     "Profile",
@@ -27,4 +34,8 @@ __all__ = [
     "TenderItem",
     "TenderProductRequirement",
     "TenderRequiredDocument",
+    "TenderApplication",
+    "ApplicationItemQuote",
+    "ApplicationRequirementResponse",
+    "ApplicationDocument",
 ]
