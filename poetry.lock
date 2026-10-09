@@ -3138,13 +3138,13 @@ websockets = ">=14,<17"
 
 [[package]]
 name = "langsmith"
-version = "0.14.5"
+version = "0.14.7"
 description = "Client library to connect to the LangSmith Observability and Evaluation Platform."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "langsmith-0.14.5-py3-none-any.whl", hash = "sha256:f631fccd65f8f57b697ba5cd6550b488a1282ba994e540b3339b1d1affe32996"},
-    {file = "langsmith-0.14.5.tar.gz", hash = "sha256:ebeb638ea94bf8434b2b12d6970b4f9c4ef481124747d5c6f81bdbd9706fd556"},
+    {file = "langsmith-0.14.7-py3-none-any.whl", hash = "sha256:748538d163cd073879106837d7f0892f34849655ba43cbb5aa5e21509e24423d"},
+    {file = "langsmith-0.14.7.tar.gz", hash = "sha256:10ead0e0134ae2ee49371091e9d996e7f32a6103bc35860d55c26ee42d975bee"},
 ]
 
 [package.dependencies]
@@ -3957,6 +3957,53 @@ url = "https://github.com/msflib/fastapi.git"
 reference = "knowledge-v0.2.0"
 resolved_reference = "26c6c9fa08dcc6d24946887e49678ba64c6baa82"
 subdirectory = "modules/knowledge"
+
+[[package]]
+name = "msflib-notifications"
+version = "0.2.1"
+description = "Notifications module for MSFLib"
+optional = false
+python-versions = ">=3.10,<3.15"
+files = []
+develop = false
+
+[package.dependencies]
+jinja2 = "^3.1.0"
+msflib = {git = "https://github.com/msflib/fastapi.git", rev = "core-v0.2.1", subdirectory = "core"}
+msflib-account = {git = "https://github.com/msflib/fastapi.git", rev = "account-v0.2.2", subdirectory = "modules/account"}
+msflib-tenancy = {git = "https://github.com/msflib/fastapi.git", rev = "tenancy-v0.2.0", subdirectory = "modules/tenancy"}
+
+[package.extras]
+all = ["emails (>=0.6,<0.7)", "twilio (>=9.4.6,<10.0.0)"]
+email = ["emails (>=0.6,<0.7)"]
+sms = ["twilio (>=9.4.6,<10.0.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/msflib/fastapi.git"
+reference = "notifications-v0.2.1"
+resolved_reference = "26c6c9fa08dcc6d24946887e49678ba64c6baa82"
+subdirectory = "modules/notifications"
+
+[[package]]
+name = "msflib-payments"
+version = "0.2.1"
+description = "Payments module for MSFLib"
+optional = false
+python-versions = ">=3.10,<3.15"
+files = []
+develop = false
+
+[package.dependencies]
+msflib = {git = "https://github.com/msflib/fastapi.git", rev = "core-v0.2.1", subdirectory = "core"}
+stripe = "^13.2.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/msflib/fastapi.git"
+reference = "payments-v0.2.1"
+resolved_reference = "26c6c9fa08dcc6d24946887e49678ba64c6baa82"
+subdirectory = "modules/payments"
 
 [[package]]
 name = "msflib-tenancy"
@@ -5028,13 +5075,13 @@ files = [
 
 [[package]]
 name = "pycparser"
-version = "3.1"
+version = "3.11"
 description = "C parser in Python"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "pycparser-3.1-py3-none-any.whl", hash = "sha256:f09d358c840bd147b79e55f2bc494f18ea869dc897f5852a8f5766b74f787882"},
-    {file = "pycparser-3.1.tar.gz", hash = "sha256:b3fc6dec06a8b2fefa0ed4ff92285306a5e3be9987bc5603c9edbdc4e492418f"},
+    {file = "pycparser-3.11-py3-none-any.whl", hash = "sha256:51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80"},
+    {file = "pycparser-3.11.tar.gz", hash = "sha256:d875f09c3507d00e1aba0eecc6dcadc1352f30fff09dc6bff2f1c2935e97c2bc"},
 ]
 
 [[package]]
@@ -5985,6 +6032,24 @@ typing-extensions = {version = ">=4.10.0", markers = "python_version < \"3.13\""
 
 [package.extras]
 full = ["httpx (>=0.27.0,<0.29.0)", "httpx2 (>=2.0.0)", "itsdangerous", "jinja2", "opentelemetry-api", "python-multipart (>=0.0.18)", "pyyaml"]
+
+[[package]]
+name = "stripe"
+version = "13.2.0"
+description = "Python bindings for the Stripe API"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "stripe-13.2.0-py3-none-any.whl", hash = "sha256:e7d18bd44bab1812bc4e9e75da4ceacedd587f71737bb9193955edf420605f88"},
+    {file = "stripe-13.2.0.tar.gz", hash = "sha256:ed6ad1c27725e1e32a336fa9d835cfa8f0bd6dafcc98b3ab7bc7e8791390453b"},
+]
+
+[package.dependencies]
+requests = {version = ">=2.20", markers = "python_version >= \"3.0\""}
+typing_extensions = {version = ">=4.5.0", markers = "python_version >= \"3.7\""}
+
+[package.extras]
+async = ["httpx"]
 
 [[package]]
 name = "tenacity"
@@ -7138,4 +7203,4 @@ cffi = ["cffi (>=1.17,<2.0)", "cffi (>=2.0.0b)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.15"
-content-hash = "900566dc5d2c1e1c029d557f9f2785ad99813414ea669096afe342ccbce3b4b5"
+content-hash = "d986b8067600b1a299345ae7125ec675caf2f9ca63df69c23c25a7d4556cd0ea"

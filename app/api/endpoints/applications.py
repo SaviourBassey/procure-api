@@ -1,5 +1,4 @@
 
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
@@ -8,15 +7,16 @@ from app.db.session import get_session
 from app.dependencies import auth_deps
 from app.models import (
     Account,
-    VendorOnboarding,
-    Tender,
-    TenderItem,
-    TenderProductRequirement,
-    TenderApplication,
+    ApplicationDocument,
     ApplicationItemQuote,
     ApplicationRequirementResponse,
-    ApplicationDocument,
+    Tender,
+    TenderApplication,
+    TenderItem,
+    TenderProductRequirement,
+    VendorOnboarding,
 )
+from app.services.access import require_buyer
 
 application_router = APIRouter()
 
@@ -190,12 +190,12 @@ def serialize_application(
     tags=["Tender Applications"],
 )
 def get_my_applications(
-    tender_id: Optional[int] = Query(
+    tender_id: int | None = Query(
         default=None,
         gt=0,
         description="Optionally filter applications by tender ID.",
     ),
-    application_status: Optional[str] = Query(
+    application_status: str | None = Query(
         default=None,
         alias="status",
         description="Optionally filter by application status.",
@@ -261,6 +261,56 @@ def get_my_applications(
 
 
 @application_router.get(
+    "/for-tender/{tender_id}",
+    tags=["Tender Applications"],
+)
+def list_applications_for_tender(
+    tender_id: int,
+    current_account: Account = Depends(
+        auth_deps.get_current_account
+    ),
+    session: Session = Depends(get_session),
+):
+    buyer = require_buyer(current_account, session)
+    tender = session.get(Tender, tender_id)
+
+    if tender is None or tender.buyer_onboarding_id != buyer.id:
+        raise HTTPException(status_code=404, detail="Tender not found.")
+
+    applications = list(
+        session.exec(
+            select(TenderApplication)
+            .where(TenderApplication.tender_id == tender.id)
+            .order_by(TenderApplication.submitted_at.desc())
+        ).all()
+    )
+
+    results = []
+    for application in applications:
+        vendor = session.get(
+            VendorOnboarding,
+            application.vendor_onboarding_id,
+        )
+        if vendor is None:
+            continue
+        results.append(
+            serialize_application(
+                application=application,
+                tender=tender,
+                vendor=vendor,
+                session=session,
+                include_details=True,
+            )
+        )
+
+    return {
+        "tender_id": tender.id,
+        "count": len(results),
+        "applications": results,
+    }
+
+
+@application_router.get(
     "/{application_id}",
     tags=["Tender Applications"],
 )
@@ -271,13 +321,37 @@ def get_application_details(
     ),
     session: Session = Depends(get_session),
 ):
-    vendor = require_vendor(current_account, session)
+    account_type = get_account_type(current_account)
 
-    application = get_owned_application(
-        application_id=application_id,
-        vendor=vendor,
-        session=session,
-    )
+    if account_type == "vendor":
+        vendor = require_vendor(current_account, session)
+        application = get_owned_application(
+            application_id=application_id,
+            vendor=vendor,
+            session=session,
+        )
+    elif account_type == "buyer":
+        buyer = require_buyer(current_account, session)
+        application = session.get(TenderApplication, application_id)
+        if application is None:
+            raise HTTPException(status_code=404, detail="Application not found.")
+        tender_owner = session.get(Tender, application.tender_id)
+        if (
+            tender_owner is None
+            or tender_owner.buyer_onboarding_id != buyer.id
+        ):
+            raise HTTPException(status_code=404, detail="Application not found.")
+        vendor = session.get(
+            VendorOnboarding,
+            application.vendor_onboarding_id,
+        )
+        if vendor is None:
+            raise HTTPException(status_code=404, detail="Application not found.")
+    else:
+        raise HTTPException(
+            status_code=403,
+            detail="Only buyer and vendor accounts can view applications.",
+        )
 
     tender = session.get(Tender, application.tender_id)
 

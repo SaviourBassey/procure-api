@@ -2,20 +2,24 @@ from fastapi import APIRouter, Depends, status
 from msflib.account.models import AccountCreate, AccountRead
 from msflib.account.router import account_router as msflib_account_router
 from msflib.auth.router import router as msflib_auth_router
+from msflib.notifications.router import (
+    account_notification_router,
+)
+from msflib.payments.router import router as payments_router
 from sqlmodel import Session
 
 from app.actions import account_action, profile_action
+from app.api.endpoints.analysis import analysis_router
+from app.api.endpoints.applications import application_router
+from app.api.endpoints.onboarding import onboarding_router
+from app.api.endpoints.orders import acceptance_router, order_router
+from app.api.endpoints.tenders import tender_router
+from app.api.endpoints.wallet import wallet_router
 from app.core.config import settings
 from app.db.session import get_keystore, get_session
 from app.dependencies import auth_deps
 from app.models import Account, Profile
 from app.schemas.auth import SignupRequest
-
-from app.api.endpoints.onboarding import onboarding_router
-
-from app.api.endpoints.tenders import tender_router
-
-from app.api.endpoints.applications import application_router
 
 api_router = APIRouter()
 
@@ -96,4 +100,43 @@ api_router.include_router(
 api_router.include_router(
     application_router,
     prefix="/applications",
+)
+
+api_router.include_router(
+    analysis_router,
+    prefix="/applications",
+)
+
+api_router.include_router(
+    acceptance_router,
+    prefix="/applications",
+)
+
+api_router.include_router(
+    order_router,
+    prefix="/orders",
+)
+
+api_router.include_router(
+    wallet_router,
+    prefix="/wallet",
+)
+
+api_router.include_router(
+    payments_router(
+        get_session=get_session,
+        get_current_account=auth_deps.get_current_account,
+        settings=settings,
+        prefix="",
+    ),
+    prefix="/payments",
+)
+
+api_router.include_router(
+    account_notification_router(
+        get_session=get_session,
+        get_current_account=auth_deps.get_current_account,
+        prefix="",
+    ),
+    prefix="/notifications",
 )

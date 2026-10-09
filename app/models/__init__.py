@@ -1,13 +1,31 @@
+# Register msflib tables before SQLModel.metadata.create_all runs.
+import msflib.notifications.models  # noqa: E402
+import msflib.payments.models  # noqa: E402
+
+# AI provider profiles reference tenant. Import it before create_all.
+import msflib.tenancy.models.tenant
 from msflib.account.models.account import Account, Profile
 
+from app.models.analysis import ApplicationAnalysis
+from app.models.application import (
+    ApplicationDocument,
+    ApplicationItemQuote,
+    ApplicationRequirementResponse,
+    TenderApplication,
+)
+from app.models.commerce import (
+    ProcurementOrder,
+    Wallet,
+    WalletEntry,
+    Withdrawal,
+)
 from app.models.onboarding import (
     BuyerOnboarding,
-    VendorOnboarding,
     VendorCategory,
     VendorDocument,
     VendorGalleryItem,
+    VendorOnboarding,
 )
-
 from app.models.tender import (
     Tender,
     TenderItem,
@@ -15,27 +33,25 @@ from app.models.tender import (
     TenderRequiredDocument,
 )
 
-from app.models.application import (
-    TenderApplication,
-    ApplicationItemQuote,
-    ApplicationRequirementResponse,
-    ApplicationDocument,
-)
-
 __all__ = [
     "Account",
-    "Profile",
+    "ApplicationAnalysis",
+    "ApplicationDocument",
+    "ApplicationItemQuote",
+    "ApplicationRequirementResponse",
     "BuyerOnboarding",
-    "VendorOnboarding",
-    "VendorCategory",
-    "VendorDocument",
-    "VendorGalleryItem",
+    "ProcurementOrder",
+    "Profile",
     "Tender",
+    "TenderApplication",
     "TenderItem",
     "TenderProductRequirement",
     "TenderRequiredDocument",
-    "TenderApplication",
-    "ApplicationItemQuote",
-    "ApplicationRequirementResponse",
-    "ApplicationDocument",
+    "VendorCategory",
+    "VendorDocument",
+    "VendorGalleryItem",
+    "VendorOnboarding",
+    "Wallet",
+    "WalletEntry",
+    "Withdrawal",
 ]

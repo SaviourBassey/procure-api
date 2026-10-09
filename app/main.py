@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,6 +9,7 @@ import app.models  # Registers Account and Profile tables
 from app.api.router import api_router
 from app.core.config import settings
 from app.db.session import engine
+from app.events.escrow import register_escrow_listeners
 
 
 @asynccontextmanager
@@ -38,7 +38,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-bind_app_emitter(app)
+app_emitter = bind_app_emitter(app)
+register_escrow_listeners(app_emitter)
 app.include_router(api_router, prefix="/api/v1")
 
 

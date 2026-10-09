@@ -44,6 +44,7 @@ from app.schemas.tender import TenderCreate
 
 from app.schemas.application import TenderApplicationCreate
 
+from app.services.access import as_utc
 from app.services.cloudinary_storage import upload_file
 
 from datetime import datetime, timezone
@@ -400,7 +401,8 @@ def get_active_tenders(
     statement = (
         select(Tender)
         .where(
-            Tender.submission_deadline > datetime.now(timezone.utc)
+            Tender.status.in_(["open", "active"]),
+            Tender.submission_deadline > datetime.now(timezone.utc),
         )
         .order_by(Tender.submission_deadline.asc())
         .offset(offset)
@@ -525,7 +527,7 @@ def get_tender_details(
     status_code=status.HTTP_201_CREATED,
     tags=["Tender Applications"],
 )
-def apply_to_tender(
+async def apply_to_tender(
     tender_id: int,
     application_data: str = Form(...),
     document_names: list[str] = Form(default=[]),
@@ -576,10 +578,11 @@ def apply_to_tender(
         )
 
     now = datetime.now(timezone.utc)
+    deadline = as_utc(tender.submission_deadline)
 
     if (
         tender.status not in ["open", "active"]
-        or tender.submission_deadline <= now
+        or deadline <= now
     ):
         raise HTTPException(
             status_code=400,
@@ -735,7 +738,7 @@ def apply_to_tender(
         for name, uploaded_file in zip(
             document_names, uploaded_documents
         ):
-            result = upload_file(
+            result = await upload_file(
                 uploaded_file,
                 folder=(
                     f"procure/applications/{application.id}"
@@ -754,7 +757,7 @@ def apply_to_tender(
                     url=result["url"],
                     public_id=result["public_id"],
                     file_format=result.get("format"),
-                    size_bytes=result.get("bytes"),
+                    size_bytes=result.get("size"),
                 )
             )
 

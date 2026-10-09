@@ -19,6 +19,8 @@ msflib-ai-api = { git = "https://github.com/msflib/fastapi.git", subdirectory = 
 msflib-ingestion = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/ingestion", rev = "ingestion-v0.2.0" }
 msflib-knowledge = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/knowledge", rev = "knowledge-v0.2.0" }
 msflib-tenancy = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/tenancy", rev = "tenancy-v0.2.0" }
+msflib-payments = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/payments", rev = "payments-v0.2.1" }
+msflib-notifications = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/notifications", rev = "notifications-v0.2.1" }
 celery = { version = "^5.3", extras = ["redis"] }
 tenacity = "^8.2"
 langchain-google-genai = "^4.2.7"
