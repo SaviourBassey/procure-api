@@ -8,6 +8,13 @@ from app.models.onboarding import (
     VendorGalleryItem,
 )
 
+from app.models.tender import (
+    Tender,
+    TenderItem,
+    TenderProductRequirement,
+    TenderRequiredDocument,
+)
+
 __all__ = [
     "Account",
     "Profile",
@@ -16,4 +23,8 @@ __all__ = [
     "VendorCategory",
     "VendorDocument",
     "VendorGalleryItem",
+    "Tender",
+    "TenderItem",
+    "TenderProductRequirement",
+    "TenderRequiredDocument",
 ]

@@ -13,6 +13,8 @@ from app.schemas.auth import SignupRequest
 
 from app.api.endpoints.onboarding import onboarding_router
 
+from app.api.endpoints.tenders import tender_router
+
 api_router = APIRouter()
 
 
@@ -82,4 +84,9 @@ api_router.include_router(
 api_router.include_router(
     onboarding_router,
     prefix="/onboarding",
+)
+
+api_router.include_router(
+    tender_router,
+    prefix="/tenders",
 )
