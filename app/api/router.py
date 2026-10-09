@@ -11,6 +11,8 @@ from app.dependencies import auth_deps
 from app.models import Account, Profile
 from app.schemas.auth import SignupRequest
 
+from app.api.endpoints.onboarding import onboarding_router
+
 api_router = APIRouter()
 
 
@@ -75,4 +77,9 @@ api_router.include_router(
         prefix="",
     ),
     prefix="/account",
+)
+
+api_router.include_router(
+    onboarding_router,
+    prefix="/onboarding",
 )

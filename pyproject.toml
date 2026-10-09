@@ -23,6 +23,8 @@ celery = { version = "^5.3", extras = ["redis"] }
 tenacity = "^8.2"
 langchain-google-genai = "^4.2.7"
 email-validator = "^2.3.0"
+cloudinary = "^1.46.3"
+python-multipart = "^0.0.32"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4"
