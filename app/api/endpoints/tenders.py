@@ -484,16 +484,23 @@ def get_tender_details(
 
     elif account_type == "vendor":
         # Vendors can only view active, non-expired tenders.
+        deadline = tender.submission_deadline
+
+        # Normalize naive datetimes to UTC before comparing.
+        if deadline.tzinfo is None:
+            deadline = deadline.replace(tzinfo=timezone.utc)
+
         now = datetime.now(timezone.utc)
 
         if (
             tender.status not in ["open", "active"]
-            or tender.submission_deadline <= now
+            or deadline <= now
         ):
             raise HTTPException(
                 status_code=404,
                 detail="Active tender not found.",
             )
+
 
     else:
         raise HTTPException(
