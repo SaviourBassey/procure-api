@@ -21,12 +21,17 @@ msflib-knowledge = { git = "https://github.com/msflib/fastapi.git", subdirectory
 msflib-tenancy = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/tenancy", rev = "tenancy-v0.2.0" }
 msflib-payments = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/payments", rev = "payments-v0.2.1" }
 msflib-notifications = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/notifications", rev = "notifications-v0.2.1" }
+msflib-drivelink = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/drivelink", rev = "drivelink-v0.2.0" }
+msflib-conversation = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/conversation", rev = "conversation-v0.2.0" }
+msflib-workspace-config = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/workspace_config", rev = "workspace_config-v0.2.1" }
+msflib-workspace-notifications = { git = "https://github.com/msflib/fastapi.git", subdirectory = "modules/workspace_notifications", rev = "workspace_notifications-v0.2.1" }
 celery = { version = "^5.3", extras = ["redis"] }
 tenacity = "^8.2"
 langchain-google-genai = "^4.2.7"
 email-validator = "^2.3.0"
 cloudinary = "^1.46.3"
 python-multipart = "^0.0.32"
+python-ulid = ">=2.2.0,<5.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4"

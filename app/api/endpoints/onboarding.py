@@ -8,6 +8,7 @@ from fastapi import (
     UploadFile,
     status,
 )
+from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 
 from app.db.session import get_session
@@ -15,14 +16,12 @@ from app.dependencies import auth_deps
 from app.models import (
     Account,
     BuyerOnboarding,
-    VendorOnboarding,
     VendorCategory,
     VendorDocument,
     VendorGalleryItem,
+    VendorOnboarding,
 )
 from app.services.cloudinary_storage import upload_file
-
-from pydantic import BaseModel, Field
 
 
 class BuyerOnboardingRequest(BaseModel):
@@ -115,9 +114,18 @@ def onboard_buyer(
     session.commit()
     session.refresh(buyer)
 
+    from app.services.organization import provision_organization_workspace
+
+    workspace = provision_organization_workspace(
+        session,
+        current_account,
+        buyer.organization_name,
+    )
+
     return {
         "message": "Buyer onboarding completed successfully.",
         "onboarding_completed": True,
+        "workspace": {"id": workspace.id, "slug": workspace.slug, "name": workspace.name},
         "account_type": "buyer",
         "profile": {
             "id": buyer.id,

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from msflib.account.models import AccountCreate, AccountRead
 from msflib.account.router import account_router as msflib_account_router
+from msflib.account.service.account import create_account
 from msflib.auth.router import router as msflib_auth_router
 from msflib.notifications.router import (
     account_notification_router,
@@ -13,8 +14,10 @@ from app.api.endpoints.analysis import analysis_router
 from app.api.endpoints.applications import application_router
 from app.api.endpoints.onboarding import onboarding_router
 from app.api.endpoints.orders import acceptance_router, order_router
+from app.api.endpoints.policy import policy_router
 from app.api.endpoints.tenders import tender_router
 from app.api.endpoints.wallet import wallet_router
+from app.api.library import library_router
 from app.core.config import settings
 from app.db.session import get_keystore, get_session
 from app.dependencies import auth_deps
@@ -48,7 +51,12 @@ def signup(
         profile=payload.profile,
     )
 
-    account = account_action.create(session, data=account_data)
+    account = create_account(
+        session,
+        account_data,
+        account_action,
+        settings,
+    )
 
     return {
         "id": account.id,
@@ -131,6 +139,9 @@ api_router.include_router(
     ),
     prefix="/payments",
 )
+
+api_router.include_router(library_router())
+api_router.include_router(policy_router, prefix="/procurement/policy")
 
 api_router.include_router(
     account_notification_router(

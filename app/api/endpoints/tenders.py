@@ -1,54 +1,42 @@
 
+import json
+from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Literal
 
-import json
-from decimal import Decimal
-
-from pydantic import ValidationError
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import Session, select
-
 from fastapi import (
+    APIRouter,
     Depends,
     File,
     Form,
     HTTPException,
+    Query,
+    Request,
     UploadFile,
     status,
 )
+from pydantic import ValidationError
+from sqlmodel import Session, select
 
 from app.db.session import get_session
 from app.dependencies import auth_deps
 from app.models import (
     Account,
+    ApplicationDocument,
+    ApplicationItemQuote,
+    ApplicationRequirementResponse,
     BuyerOnboarding,
     Tender,
+    TenderApplication,
     TenderItem,
     TenderProductRequirement,
     TenderRequiredDocument,
-)
-from app.models import (
-    Account,
-    BuyerOnboarding,
-    Tender,
-    TenderItem,
-    TenderProductRequirement,
     VendorOnboarding,
-    TenderApplication,
-    ApplicationItemQuote,
-    ApplicationRequirementResponse,
-    ApplicationDocument,
 )
-from app.schemas.tender import TenderCreate
-
 from app.schemas.application import TenderApplicationCreate
-
+from app.schemas.tender import TenderCreate
 from app.services.access import as_utc
 from app.services.cloudinary_storage import upload_file
-
-from datetime import datetime, timezone
-
 
 tender_router = APIRouter()
 
@@ -73,6 +61,7 @@ def get_account_type(account: Account) -> str | None:
 )
 def create_tender(
     payload: TenderCreate,
+    request: Request,
     current_account: Account = Depends(
         auth_deps.get_current_account
     ),
@@ -162,6 +151,10 @@ def create_tender(
     except Exception:
         session.rollback()
         raise
+
+    from app.events.platform import publish_tender
+
+    publish_tender(request.app, session, int(tender.id), current_account)
 
     return {
         "message": "Tender created successfully.",
@@ -767,6 +760,22 @@ async def apply_to_tender(
     except Exception:
         session.rollback()
         raise
+
+    from app.models import BuyerOnboarding
+    from app.services.collaboration import open_application_channel
+
+    buyer_profile = session.get(BuyerOnboarding, tender.buyer_onboarding_id)
+    buyer_account = (
+        session.get(Account, int(buyer_profile.account_id)) if buyer_profile else None
+    )
+    if buyer_account is not None:
+        open_application_channel(
+            session,
+            application_id=int(application.id),
+            tender_title=tender.title,
+            buyer=buyer_account,
+            vendor=current_account,
+        )
 
     return {
         "message": "Tender application submitted successfully.",

@@ -804,8 +804,8 @@ def _message_text(message: Any) -> str:
     return str(content)
 
 
-def _llm():
-    from msflib.ai_core.deps import get_ai_dependencies
+def _llm(model_name: str | None = None):
+    from msflib.ai_core.providers.llm import get_llm
 
     ai_settings = settings.scope("AI_CORE")
     api_key = str(getattr(ai_settings, "LLM_API_KEY", "") or "").strip()
@@ -817,13 +817,18 @@ def _llm():
                 "(for example LLM_PROVIDER=openrouter) and try again."
             ),
         )
-    return get_ai_dependencies(settings).get_llm(), ai_settings
+    provider_config = {"model_name": model_name} if model_name else None
+    return get_llm(ai_settings, provider_config), ai_settings
 
 
-def _narrative_from_model(evidence: dict[str, Any]) -> tuple[dict[str, Any], TokenUsageCallback, str, str]:
+def _narrative_from_model(
+    evidence: dict[str, Any],
+    *,
+    model_name: str | None = None,
+) -> tuple[dict[str, Any], TokenUsageCallback, str, str]:
     from langchain_core.messages import HumanMessage, SystemMessage
 
-    llm, ai_settings = _llm()
+    llm, ai_settings = _llm(model_name)
     usage = TokenUsageCallback()
     system = SystemMessage(
         content=(
@@ -975,7 +980,9 @@ def analyze_application(
     requested_by: Account,
 ) -> dict[str, Any]:
     from app.models.analysis import ApplicationAnalysis
+    from app.services.procurement_policy import resolve_procurement
 
+    resolved, trace, _scope = resolve_procurement(session, requested_by)
     evidence = build_evidence(
         tender=tender,
         buyer=buyer,
@@ -988,8 +995,19 @@ def analyze_application(
         required_documents=required_documents,
         documents=documents,
     )
-    narrative, usage, provider, model_name = _narrative_from_model(evidence)
+    narrative, usage, provider, model_name = _narrative_from_model(
+        evidence,
+        model_name=resolved.ANALYSIS_MODEL,
+    )
     report = assemble_report(evidence, narrative)
+    report["policy"] = {
+        "analysis_model": resolved.ANALYSIS_MODEL,
+        "currency": resolved.CURRENCY,
+        "winning_layers": {
+            key: getattr(layer, "value", str(layer))
+            for key, layer in trace.winning_layers.items()
+        },
+    }
 
     row = ApplicationAnalysis(
         application_id=application.id,
